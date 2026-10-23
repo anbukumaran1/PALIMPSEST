@@ -1,4 +1,4 @@
-# 🧬 PALIMPSEST (VEX-MORPH)
+# 🧬 PALIMPSEST
 
 ### 🤖 The AI Proposes. 🧮 The Math Proves.
 

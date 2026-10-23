@@ -1,6 +1,5 @@
 # 🛡️ PALIMPSEST
 ### Autonomous Neurosymbolic De-obfuscation
-**Codename: VEX-MORPH**
 
 **The AI Proposes. The Mathematics Proves.**
 

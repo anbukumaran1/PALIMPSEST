@@ -8,8 +8,8 @@ An offline-first, AI-powered code de-obfuscation system that combines the patter
 **Hackathon:** DEXATHON 2026  
 **Domain:** AI/ML · Smart Automation · Cybersecurity  
 **Category:** Software Development  
-**Team:** [TEAM NAME]  
-**Team ID:** [TEAM ID]  
+**Team:** Nexus 6.0  
+**Team ID:** DEX26348  
 **Project Status:** Prototype Development
 
 ---

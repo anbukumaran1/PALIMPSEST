@@ -1,936 +1,445 @@
-# 🛡️ PALIMPSEST
-### Autonomous Neurosymbolic De-obfuscation
+# 🧬 PALIMPSEST (VEX-MORPH)
 
-**The AI Proposes. The Mathematics Proves.**
+### 🤖 The AI Proposes. 🧮 The Math Proves.
 
-An offline-first, AI-powered code de-obfuscation system that combines the pattern-recognition capabilities of a fine-tuned Small Language Model (SLM) with the mathematical certainty of formal verification.
+**Built by Team NEXUS** 💫
 
-**Hackathon:** DEXATHON 2026  
-**Domain:** AI/ML · Smart Automation · Cybersecurity  
-**Category:** Software Development  
-**Team:** Nexus 6.0  
-**Team ID:** DEX26348  
-**Project Status:** Prototype Development
+> An **offline, self-correcting AI system** that un-scrambles obfuscated code and gives a **mathematical proof** that its answer is correct. No cloud. No guessing. No hallucinations in the final output.
 
----
-
-## 📌 Table of Contents
-
-1. [Project Overview](#-project-overview)
-2. [Problem Statement](#-problem-statement)
-3. [Our Solution](#-our-solution)
-4. [Core Innovation](#-core-innovation)
-5. [System Architecture](#-system-architecture)
-6. [User Workflow](#-user-workflow)
-7. [How PALIMPSEST Works](#-how-palimpsest-works)
-8. [AI/ML Training Pipeline](#-aiml-training-pipeline)
-9. [Formal Mathematical Verification](#-formal-mathematical-verification)
-10. [Technology Stack](#-technology-stack)
-11. [Features](#-features)
-12. [Repository Structure](#-repository-structure)
-13. [Getting Started](#-getting-started)
-14. [Evaluation and Benchmarks](#-evaluation-and-benchmarks)
-15. [Safety and Limitations](#-safety-and-limitations)
-16. [Real-World Applications](#-real-world-applications)
-17. [Future Scope](#-future-scope)
-18. [Research and References](#-research-and-references)
-19. [Team](#-team)
+![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white)
+![Z3](https://img.shields.io/badge/Z3-Theorem%20Prover-red)
+![LangGraph](https://img.shields.io/badge/LangGraph-Agent%20Loop-green)
+![Unsloth](https://img.shields.io/badge/Unsloth-QLoRA-orange)
+![Local](https://img.shields.io/badge/Runs-100%25%20Offline-black)
+![License](https://img.shields.io/badge/License-Apache%202.0-blue)
 
 ---
 
-## 🔍 Project Overview
+## 📖 Table of Contents
 
-Modern software security analysis faces a critical challenge: malicious and protected programs often contain deliberately complicated code that conceals their actual behavior.
-
-This process, known as **code obfuscation**, transforms relatively simple operations into confusing mathematical expressions and execution structures.
-
-Traditional reverse-engineering tools provide powerful analysis capabilities, but advanced obfuscation can still require substantial manual investigation.
-
-AI models can suggest simpler interpretations, but their outputs are not guaranteed to preserve the original program's behavior.
-
-**PALIMPSEST bridges this gap using neurosymbolic AI.**
-
-It combines two complementary technologies:
-
-- **Neural Intelligence:** A locally deployed, specialized language model proposes simplified code expressions.
-- **Symbolic Intelligence:** Microsoft Z3 mathematically verifies whether those expressions preserve the original behavior.
-
-When a proposal is incorrect, the system extracts a counterexample and provides it to the AI for another attempt.
-
-The result is a controlled, explainable workflow in which AI-generated transformations are never accepted without verification.
-
-> **Our vision:** Make complex code analysis more accessible, verifiable, and privacy-preserving through specialized AI and formal mathematics.
+- [💡 The Big Idea](#-the-big-idea)
+- [😵 The Problem](#-the-problem)
+- [✨ Our Solution](#-our-solution)
+- [🎬 See It in Action](#-see-it-in-action)
+- [🏗️ How It Works](#️-how-it-works)
+- [🧭 Workflow Architecture](#-workflow-architecture)
+- [🧪 Where Our Training Data Comes From](#-where-our-training-data-comes-from)
+- [🧠 How We Trained the AI](#-how-we-trained-the-ai)
+- [🛠️ Tools We Used](#️-tools-we-used)
+- [📚 Concepts Explained Simply](#-concepts-explained-simply)
+- [🆚 Why PALIMPSEST Is Different](#-why-palimpsest-is-different)
+- [🚀 Getting Started](#-getting-started)
+- [👥 Team](#-team)
 
 ---
 
-## 🚨 Problem Statement
+## 💡 The Big Idea
 
-### The Malware Obfuscation Challenge
+Imagine someone takes the simple sum `x + y` and disguises it as a **300-character monster** full of weird symbols. Humans can't read it. Normal tools give up on it.
 
-Security analysts frequently encounter software containing deliberately obfuscated instructions.
+**PALIMPSEST** reads that monster and tells you:
 
-Techniques such as **Mixed Boolean-Arithmetic (MBA)**, **opaque predicates**, and **control-flow flattening** can make relatively simple logic difficult to interpret.
+> ✅ "This is just `x + y`. And here is a **mathematical proof** that I'm right."
 
-Three major challenges arise:
+We do this by splitting the work between two partners:
 
-| Existing Approach | Limitation |
-|---|---|
-| Traditional decompilers | Complex obfuscation may require extensive manual analysis or additional simplification techniques |
-| Standalone generative AI | May suggest plausible but mathematically incorrect transformations |
-| Cloud-based AI tools | May be unsuitable for environments where sensitive code cannot leave organizational infrastructure |
+| 🤖 The AI (small local model) | 🧮 The Math (Z3 solver) |
+| --- | --- |
+| Fast, intuitive, makes smart guesses | Slow-thinking, strict, never wrong |
+| Can make mistakes | Checks every guess with proof |
+| **Proposes** an answer | **Proves or rejects** the answer |
 
-### Why Does This Matter?
-
-A security analyst investigating suspicious code must understand what that code actually does.
-
-If an AI system incorrectly simplifies a calculation, the resulting interpretation may be misleading.
-
-For example, changing a bitwise expression incorrectly could alter how an analyst understands a program's logic.
-
-**The central challenge is not simply generating readable code. It is generating readable code while proving that its behavior remains unchanged.**
+If the math says "wrong", it also tells the AI **exactly where it failed**, and the AI tries again. 🔁
 
 ---
 
-## 💡 Our Solution
+## 😵 The Problem
 
-### PALIMPSEST: Autonomous Neurosymbolic De-obfuscation
+Malware writers and software-protection tools **scramble code on purpose** so nobody can understand what it does. Three popular tricks:
 
-PALIMPSEST is designed to simplify supported obfuscated expressions using a closed-loop combination of AI and mathematical verification.
+| 🎭 Trick | 🧒 Simple Explanation |
+| --- | --- |
+| **MBA (Mixed Boolean-Arithmetic)** | Hide a simple calculation like `x + y` inside a pile of mixed bit-operations and math that all secretly cancel out |
+| **Opaque Predicates** | Add `if` checks that *look* unpredictable but always give the same answer, so fake code paths waste your time |
+| **Control-Flow Flattening** | Take a neat program and chop it into hundreds of disconnected blocks controlled by a giant `switch`, so you can't see the flow |
 
-The system follows five core stages:
+### 😬 Why existing tools struggle
 
-**1. Analyze:** Parse the supplied expression and construct an Abstract Syntax Tree (AST).
-
-**2. Propose:** A specialized local AI model predicts a simpler equivalent expression.
-
-**3. Verify:** Microsoft Z3 checks whether the original and proposed expressions are equivalent.
-
-**4. Self-Correct:** If verification fails, a mathematical counterexample is returned to the AI for another attempt.
-
-**5. Deliver:** A successfully verified simplification is presented with its verification status and complexity measurements.
-
-If verification cannot be completed, the system reports that the result is unverified instead of claiming correctness.
-
----
-
-## ✨ Core Innovation
-
-### Why PALIMPSEST Is Different
-
-PALIMPSEST is not simply an LLM that rewrites code.
-
-Its design focuses on four technical principles.
-
-**1. Neurosymbolic Reasoning**
-
-AI performs the difficult search for simpler expressions, while a mathematical solver independently checks correctness.
-
-**2. Counterexample-Guided Self-Correction**
-
-When a proposed expression is incorrect, the solver provides an exact input where the two expressions behave differently.
-
-The AI receives this feedback and attempts to correct its mistake.
-
-**3. Synthetic Mathematical Training Data**
-
-Rather than manually collecting thousands of labeled malware samples, the project proposes generating training pairs using valid algebraic transformations.
-
-Every generated pair can be checked using a formal solver before entering the dataset.
-
-**4. Privacy-Preserving Local Inference**
-
-The proposed deployment runs the language model and verification tools locally, reducing dependence on external AI APIs and keeping submitted expressions within the controlled environment.
-
-### Our Guiding Principle
-
-**AI is responsible for proposing. Mathematics is responsible for deciding whether the proposal is correct.**
+- 🔧 **Decompilers (Ghidra, IDA Pro):** use fixed hand-written rules. Change the disguise slightly and the rules stop matching.
+- 🧮 **Math solvers alone (Z3, Angr):** great at *checking* if two expressions match, terrible at *finding* the simple one. It's like a judge who can verify an answer but can't solve the puzzle.
+- ☁️ **Big cloud AIs (GPT, Claude, Gemini):**
+  - 🔒 You can't upload live malware or secret firmware to a third-party server.
+  - 🎲 They guess, and one wrong bit ruins the whole analysis.
+  - 🐢 Hundreds of back-and-forth calls over the internet is painfully slow.
 
 ---
 
-## 🏗️ System Architecture
+## ✨ Our Solution
 
-### High-Level Architecture
+PALIMPSEST stands on **three pillars**:
 
-```mermaid
-flowchart TD
-    A["Security Analyst"] --> B["PALIMPSEST Interface"]
-    B --> C["AST Parser & Security Gate"]
-    C --> D["Local Fine-Tuned Qwen SLM"]
-    D --> E["Microsoft Z3 Verifier"]
-    E --> F{"Verification Result"}
+### 1️⃣ 🤝 The AI Proposes, The Math Proves
+A small fine-tuned AI quickly suggests a simpler version. The **Z3 theorem prover** then checks whether it is *identical* to the original for **every possible 64-bit input** (that's more combinations than there are grains of sand on Earth, checked in milliseconds ⚡).
 
-    F -->|"UNSAT: Equivalent"| G["Verified Simplified Expression"]
-    F -->|"SAT: Not Equivalent"| H["Counterexample Generator"]
-    H --> I["LangGraph Feedback Loop"]
-    I --> D
+### 2️⃣ 🔁 Learn From Mistakes (CEGIS Loop)
+If the AI is wrong, Z3 doesn't just say "no". It hands back a **counterexample**, the exact input where the two versions disagree. The AI reads this evidence and fixes its answer. This repeats until the math says ✅.
 
-    F -->|"UNKNOWN / Timeout"| J["Fallback or Unverified Result"]
+### 3️⃣ 🔒 100% Local and Zero-Trust
+Everything runs **on a single laptop**, offline. Tools are locked inside safe sandboxes so dangerous code in a malware sample can never run on your machine.
 
-    G --> K["Verification Report"]
-    J --> K
-    K --> B
+---
+
+## 🎬 See It in Action
+
+**🕵️ An analyst finds this scrambled expression in a suspicious file:**
+
+```
+((((~(~x)) ^ y) + 2 * ((~(~x)) & y))) + (((x | y) - (x ^ y)) - (x & y))
 ```
 
-### Architecture Components
+**🔁 What PALIMPSEST does:**
 
-| Component | Technology | Responsibility |
-|---|---|---|
-| Analyst interface | Streamlit / Python UI | Accept expressions and display results |
-| Input security gate | Python AST | Validate supported operations and reject unsafe syntax |
-| Neural proposer | Qwen2.5-Coder-3B | Generate candidate simplifications |
-| Model specialization | Unsloth + QLoRA | Fine-tune the model on synthetic expression pairs |
-| Symbolic verifier | Microsoft Z3 | Check exact bit-vector equivalence |
-| Feedback controller | LangGraph | Coordinate iterative correction |
-| Tool interface | MCP, optional | Expose restricted verification functions |
-| Execution history | SQLite | Record candidates, solver results, and iterations |
+| Step | What happens | Result |
+| --- | --- | --- |
+| 1️⃣ | 🛡️ Safety gate checks the input is pure math (no hidden commands) and counts its size | 38 nodes |
+| 2️⃣ | 🤖 AI's first guess: `x ^ y` | Close, but it forgot the carry! |
+| 3️⃣ | 🧮 Z3 says **❌ WRONG** and shows: `x = 1, y = 1` → original gives `2`, guess gives `0` | ~11 ms |
+| 4️⃣ | 🤖 AI reads that evidence and tries again: `x + y` | |
+| 5️⃣ | 🧮 Z3 says **✅ PROVEN EQUIVALENT** | ~8 ms |
 
-### Design Philosophy
+**🏁 Final output:**
 
-The AI model is never treated as the final authority.
-
-**Verification is a mandatory gate before a result can be labeled mathematically equivalent.**
+```
+✅ Z3 FORMAL EQUIVALENCE PROVEN
+Original : 38 nodes
+Simplified: x + y  (3 nodes)
+Reduction : 92.1%
+Cloud API calls: 0
+```
 
 ---
 
-## 👨‍💻 User Workflow
+## 🏗️ How It Works
 
-### How a Security Analyst Uses PALIMPSEST
+PALIMPSEST is a **loop**, not a straight line. It keeps going until the math is satisfied.
+
+```
+        📥 Obfuscated Expression
+                  │
+                  ▼
+   🛡️ NODE 1: Security Gate (AST check)
+                  │
+                  ▼
+   ┌─► 🤖 NODE 2: Small AI proposes a simpler version
+   │              │
+   │              ▼
+   │   🧮 NODE 3: Z3 tries to find a counterexample
+   │              │
+   │      ┌───────┴────────┐
+   │   ❌ SAT           ✅ UNSAT
+   │  (found a bug)    (proven identical)
+   │      │                │
+   └──────┘                │
+ (send the bug back        │
+  to the AI)               │
+                           │      ⏱️ Out of tries?
+                           │            │
+                           │            ▼
+                           │   🧩 NODE 4: Split into smaller
+                           │      pieces, solve each one
+                           │            │
+                           ▼            ▼
+              🏆 NODE 5: Verified answer + proof badge
+```
+
+### 🧩 What each node does
+
+| Node | Job |
+| --- | --- |
+| 🛡️ **1. Security Gate** | Parses the input and only allows pure math/bit operators. Function calls, imports, and shell tricks are rejected instantly |
+| 🤖 **2. AI Proposer** | Suggests a simpler expression. On retries, it sees every past failed guess and its counterexample |
+| 🧮 **3. Z3 Verifier** | Proves the guess is equal to the original, or finds an input where it isn't |
+| 🧩 **4. Fallback** | If the full expression is too hard, breaks it into small sub-parts and verifies each one |
+| 🏆 **5. Output** | Shows the verified result, how much it shrank, solve time, and the full step-by-step trace |
+
+---
+
+## 🧭 Workflow Architecture
+
+The whole project has **3 phases**. Phases 1 and 2 happen once (building the AI). Phase 3 is what runs every time an analyst uses the tool.
 
 ```mermaid
-sequenceDiagram
-    actor Analyst
-    participant UI as PALIMPSEST UI
-    participant AST as AST Validator
-    participant AI as Local Qwen Model
-    participant Z3 as Z3 Verifier
-    participant DB as SQLite
-
-    Analyst->>UI: Submit obfuscated expression
-    UI->>AST: Parse and validate expression
-    AST-->>UI: Validated expression
-
-    UI->>AI: Request simplified candidate
-    AI-->>UI: Candidate expression
-
-    UI->>Z3: Check mathematical equivalence
-
-    alt Candidate is equivalent
-        Z3-->>UI: UNSAT - Proven equivalent
-        UI->>DB: Save verification result
-        UI-->>Analyst: Display verified simplification
-    else Candidate is incorrect
-        Z3-->>UI: SAT - Counterexample
-        UI->>DB: Record failed candidate
-        UI->>AI: Retry with counterexample
-        AI-->>UI: Revised candidate
-    else Verification inconclusive
-        Z3-->>UI: UNKNOWN / Timeout
-        UI-->>Analyst: Display unverified status
+flowchart LR
+    subgraph P1["🧪 PHASE 1: Build the Data"]
+        A["🌱 Clean seed<br/>e.g. x + y"] --> B["🌀 Scramble with<br/>math identities + noise"]
+        B --> C{"🧮 Z3 check:<br/>still equal?"}
+        C -- "❌ No" --> X["🗑️ Discard"]
+        C -- "✅ Yes" --> D["📚 Synthetic dataset<br/>(70% direct, 30% error-recovery)"]
     end
+
+    subgraph P2["🧠 PHASE 2: Train the AI (Kaggle GPU)"]
+        D --> E["🦥 Unsloth QLoRA<br/>SFT fine-tuning"]
+        E --> F["🎯 DPO<br/>prefer shortest correct answer"]
+        F --> G["📦 Export 4-bit GGUF<br/>small local model"]
+    end
+
+    subgraph P3["🚀 PHASE 3: Run Locally"]
+        H["📥 Obfuscated<br/>expression"] --> I["🛡️ Security gate<br/>(AST whitelist)"]
+        I --> J["🤖 Small AI<br/>proposes rewrite"]
+        J --> K["🔌 MCP sandbox:<br/>Z3 verifier"]
+        K -- "❌ SAT: counterexample" --> J
+        K -- "✅ UNSAT: proven" --> L["🏆 Verified result<br/>+ proof badge"]
+        K -. "⏱️ out of tries" .-> M["🧩 Split into<br/>smaller parts"]
+        M --> L
+        K --> N[("🗃️ SQLite WAL<br/>audit log")]
+        N --> O["🖥️ Streamlit<br/>dashboard"]
+        L --> O
+    end
+
+    G ==> J
 ```
 
-### From the User's Perspective
+### 🔎 How the pieces connect
 
-1. Open PALIMPSEST.
-2. Paste a supported obfuscated expression.
-3. Start the analysis.
-4. Observe the AI-generated simplification attempts.
-5. View whether mathematical verification succeeds.
-6. Inspect the final expression, complexity reduction, and verification history.
+| Phase | Input | What happens | Output |
+| --- | --- | --- | --- |
+| 🧪 **1. Data** | Clean expressions | Scramble automatically, keep only pairs Z3 proves equal | Verified training dataset |
+| 🧠 **2. Training** | Dataset | SFT teaches the patterns, DPO teaches "shortest correct wins" | Small local GGUF model |
+| 🚀 **3. Runtime** | Obfuscated expression | AI proposes, Z3 checks, counterexamples loop back until proven | Simple expression + proof |
 
-For the initial prototype, the user submits mathematical or bitwise expressions rather than arbitrary executable malware.
+### 🔐 Layers of safety
+
+1. 🛡️ **Before the AI:** the AST gate rejects anything that isn't pure math.
+2. 📦 **During verification:** Z3 runs in a sandbox with a strict time limit (about 3 seconds).
+3. 🧮 **After the AI:** nothing is accepted unless Z3 proves it. The AI's guess alone is never trusted.
+4. 🗃️ **Always:** every step is logged to SQLite for auditing.
 
 ---
 
-## ⚙️ How PALIMPSEST Works
+## 🧪 Where Our Training Data Comes From
 
-### A Complete Worked Example
+> 🤔 **Problem:** Where do you get thousands of correctly labeled obfuscated expressions? Hiring experts to label malware takes forever.
 
-Consider the following expression:
+> 💡 **Our trick: the "Trapdoor"**
 
-```python
-((x ^ y) + 2 * (x & y))
-```
+Scrambling code is **easy**. Unscrambling is **hard**. So we cheat:
 
-At first glance, it appears to combine bitwise and arithmetic operations in a complicated way.
+1. 🌱 Start with a **simple, clean** expression like `x + y`.
+2. 🌀 **Scramble it automatically** using math identities (easy and fast).
+3. 🔄 **Flip the pair around**: the scrambled version becomes the *question*, the clean version becomes the *answer*.
 
-However, this expression is mathematically equivalent to:
+Result: unlimited training data that is **automatically correct**, with **zero human labeling** and **zero cloud cost**. 🎉
 
-```python
-x + y
-```
+### 🏭 Our 4-stage data factory
 
-PALIMPSEST aims to discover and verify this relationship automatically.
+| Stage | What happens |
+| --- | --- |
+| 🌱 **1. Seed** | Pick a clean expression (`x + y`, `x ^ y`, `(x & y) + z`, ...) |
+| 🔁 **2. Substitute** | Replace parts with equivalent-but-messier math identities, several layers deep |
+| 🧨 **3. Add noise** | Inject "opaque zeros" (terms that secretly always equal 0) to mimic real obfuscators like Tigress and OLLVM |
+| ✅ **4. Verify** | Z3 double-checks every pair. Anything not provably equal is thrown away |
 
-### Step 1: Parse the Expression
+### 🎓 We also teach the AI how to recover from mistakes
 
-The AST parser examines the expression's structure.
+- **70% of examples:** Scrambled expression → correct simple answer.
+- **30% of examples:** Scrambled expression + a *wrong guess* + Z3's counterexample → corrected answer.
 
-It identifies:
-
-- Variables: `x`, `y`
-- Operations: XOR, AND, multiplication, addition
-- Register width: Configured fixed-width bit-vectors
-- Expression complexity: AST size and depth
-
-Only operations belonging to the supported mathematical grammar are accepted.
-
-### Step 2: AI Proposes a Simplification
-
-The fine-tuned model attempts to simplify the expression.
-
-Suppose its first proposal is:
-
-```python
-x ^ y
-```
-
-This looks reasonable, but it is incorrect because it omits the carry component of addition.
-
-### Step 3: Z3 Checks the Proposal
-
-The verification engine checks whether there exists any input for which the original expression and the AI proposal produce different outputs.
-
-For example:
-
-```text
-x = 1
-y = 1
-```
-
-Original expression:
-
-```text
-(1 ^ 1) + 2 * (1 & 1)
-= 0 + 2
-= 2
-```
-
-AI proposal:
-
-```text
-1 ^ 1 = 0
-```
-
-The outputs differ.
-
-**Verification result: SAT — Counterexample found.**
-
-The AI proposal is rejected.
-
-### Step 4: Counterexample Feedback
-
-The counterexample is sent back to the neural proposer.
-
-```text
-Your proposed expression is not equivalent.
-
-Counterexample:
-x = 1
-y = 1
-
-Original output: 2
-Candidate output: 0
-
-Generate a corrected simplification.
-```
-
-The model can now revise its proposal using mathematical evidence.
-
-### Step 5: Revised Proposal
-
-The AI proposes:
-
-```python
-x + y
-```
-
-Z3 checks:
-
-```text
-Original != Candidate
-```
-
-If the solver returns `UNSAT`, no differing input exists within the defined bit-vector model.
-
-**Verification result: UNSAT — Equivalence established.**
-
-### Final Output
-
-```text
-PALIMPSEST ANALYSIS
-
-Original:
-((x ^ y) + 2 * (x & y))
-
-Simplified:
-x + y
-
-Verification:
-PROVEN EQUIVALENT
-
-Method:
-Z3 Bit-Vector Equivalence Check
-
-Status:
-VERIFIED
-```
-
-This example illustrates the central purpose of PALIMPSEST:
-
-**An incorrect AI prediction becomes a mathematically guided correction opportunity.**
+That second group is what teaches the AI to **read Z3's feedback** instead of panicking. 🧘
 
 ---
 
-## 🧠 AI/ML Training Pipeline
+## 🧠 How We Trained the AI
 
-### Specialized Decoder-Only Language Model
+We use a **small 3-billion-parameter model** (Qwen-2.5-Coder-3B or Llama-3.2-3B) instead of a giant one.
 
-PALIMPSEST proposes using **Qwen2.5-Coder-3B**, a code-specialized decoder-only Transformer model.
+### 🤷 Why small is better here
+This is a narrow, rule-based task with only about 10 operators. A big general model knows poetry and history, which we don't need. A small specialist is:
 
-The goal is to adapt this model for a narrow task: recognizing complicated mathematical expressions and proposing simpler equivalent forms.
+- ⚡ **Fast:** answers in under ~150 ms
+- 💾 **Tiny:** under ~2.5 GB when compressed
+- 💻 **Laptop-friendly:** no data center needed
 
-Rather than training a language model from scratch, the project uses parameter-efficient fine-tuning.
+### 🏋️ The two training steps
 
-### Phase 1: Synthetic Dataset Generation
+| Step | Tool/Method | Plain-English meaning |
+| --- | --- | --- |
+| **1. SFT** (Supervised Fine-Tuning) | Unsloth + 4-bit QLoRA | Show the model thousands of "scrambled → clean" examples until it learns the patterns |
+| **2. DPO** (Direct Preference Optimization) | Preference pairs | Teach it to **prefer** the shortest correct answer over a longer correct one, and never the wrong one |
 
-The training pipeline begins with simple mathematical expressions.
+Example of what DPO teaches:
 
-Example:
+- ✅ `x + y` → correct and smallest → **best**
+- 🟡 `(x | y) + (x & y)` → correct but bloated → **okay**
+- ❌ `x ^ y` → incorrect → **worst**
 
-```text
-Clean expression:
-x + y
-```
-
-A transformation engine applies mathematically valid rewriting identities.
-
-```text
-Obfuscated expression:
-(x ^ y) + 2 * (x & y)
-```
-
-The resulting pairs are reversed to train the model:
-
-```text
-INPUT:
-(x ^ y) + 2 * (x & y)
-
-TARGET:
-x + y
-```
-
-This method allows the team to generate task-specific labeled examples without manually reverse-engineering malware samples.
-
-### Training Data Architecture
-
-```mermaid
-flowchart TD
-    A["Clean Mathematical Expressions"]
-    A --> B["Algebraic Mutation Engine"]
-    B --> C["Obfuscated Expressions"]
-    C --> D["Z3 Equivalence Validation"]
-    D --> E{"Valid Pair?"}
-    E -->|"Yes"| F["Training Dataset"]
-    E -->|"No"| G["Discard Sample"]
-    F --> H["QLoRA Fine-Tuning"]
-    H --> I["Specialized Qwen Model"]
-    I --> J["Evaluation on Unseen Expressions"]
-```
-
-### Phase 2: Supervised Fine-Tuning
-
-The proposed training stack uses:
-
-- Qwen2.5-Coder-3B-Instruct
-- Hugging Face Transformers
-- Unsloth
-- PEFT / LoRA / QLoRA
-- PyTorch
-
-The model learns the relationship between obfuscated inputs and simpler target expressions.
-
-### Phase 3: Counterexample-Aware Training
-
-The blueprint proposes including failed simplifications and their counterexamples in the training data.
-
-This helps the model learn how to respond to mathematical verification failures, not only how to produce an initial answer.
-
-### Phase 4: Local Deployment
-
-After training, the specialized model can be exported in a suitable quantized format for local inference.
-
-The actual memory requirements, latency, and hardware compatibility must be benchmarked on the target device.
-
-### Model Evaluation
-
-The team should compare:
-
-- Base model performance
-- Fine-tuned model performance
-- Performance with counterexample feedback
-- Performance with formal verification enabled
-
-This will help establish whether the specialized training and feedback loop improve the system.
+Training runs on a **free Kaggle GPU (T4/P100)**, then the model is exported as a compact **GGUF (q4_k_m)** file for local use. 📦
 
 ---
 
-## 📐 Formal Mathematical Verification
+## 🛠️ Tools We Used
 
-### Why Mathematical Proof Is Essential
-
-Testing a program on a few sample inputs does not establish that two expressions are equivalent for every possible input.
-
-PALIMPSEST uses Microsoft Z3 to reason about fixed-width bit-vector operations.
-
-Let:
-
-- `E_original` be the obfuscated expression.
-- `E_candidate` be the proposed simplified expression.
-
-The solver checks:
-
-```text
-E_original != E_candidate
-```
-
-### Possible Verification Outcomes
-
-| Solver Result | Meaning | System Action |
-|---|---|---|
-| `UNSAT` | No counterexample exists under the encoded semantics | Mark equivalent |
-| `SAT` | At least one differing input exists | Reject candidate and return counterexample |
-| `UNKNOWN` | The solver cannot establish the result | Report unverified or use a controlled fallback |
-
-### Why 64-Bit Semantics Matter
-
-Computer arithmetic differs from ordinary mathematical arithmetic because fixed-width values wrap around.
-
-For example, unsigned 64-bit addition operates modulo \(2^{64}\).
-
-A simplification that works over ordinary integers may not preserve the behavior of a 64-bit machine expression.
-
-Z3's bit-vector logic enables the system to reason about these fixed-width operations explicitly.
-
-### Formal Verification Boundary
-
-PALIMPSEST's equivalence result applies to the exact expressions, bit widths, and semantics modeled in the solver.
-
-It does not automatically prove that an entire executable, malware sample, or arbitrary program is equivalent.
-
-This distinction is essential to keeping the system trustworthy.
+| Tool | 🎯 What it does for us |
+| --- | --- |
+| 🧮 **Microsoft Z3** | The "math judge". Proves two expressions are equal for all possible inputs (QF_BV bit-vector logic) |
+| 🕸️ **LangGraph** | Builds our agent as a **loop** that retries until Z3 is happy |
+| 🔌 **MCP (Model Context Protocol)** | Lets the AI use tools (like Z3) safely, inside isolated sandboxes |
+| 🦥 **Unsloth** | Makes fine-tuning ~2x faster and uses far less GPU memory |
+| 🤗 **Qwen-2.5-Coder-3B / Llama-3.2-3B** | The small base AI models we specialize |
+| 🧬 **QLoRA** | Trains only a small add-on to a compressed model, so it fits on a free GPU |
+| 🎯 **DPO** | Aligns the model to prefer simple, correct answers |
+| 🐍 **Python `ast` module** | Safely parses expressions and enforces our "math only" whitelist |
+| 🗃️ **SQLite (WAL mode)** | Fast audit log of every step, without slowing down the UI |
+| 🖥️ **Streamlit** | The "Command Center" dashboard to paste expressions and watch the loop live |
+| 📊 **Kaggle GPU** | Free GPU used for training |
+| 📦 **GGUF (q4_k_m)** | Compact model format for fast local inference |
 
 ---
 
-## 🛠️ Technology Stack
+## 📚 Concepts Explained Simply
 
-| Layer | Technology |
-|---|---|
-| Programming Language | Python |
-| Specialized AI Model | Qwen2.5-Coder-3B |
-| Model Training | Unsloth, QLoRA, PyTorch |
-| Model Ecosystem | Hugging Face Transformers |
-| Formal Verification | Microsoft Z3 |
-| Agent Orchestration | LangGraph |
-| Tool Integration | Model Context Protocol (MCP), planned |
-| Expression Parsing | Python AST |
-| Database | SQLite |
-| Local Inference | Quantized local model runtime |
-| User Interface | Streamlit, proposed |
-| Development Environment | VS Code / Jupyter / Kaggle GPU |
+<details>
+<summary>🔢 <b>MBA (Mixed Boolean-Arithmetic)</b></summary>
 
-All technologies listed form part of the proposed architecture. Their implementation status should be updated as development progresses.
+Computers have two "languages" of operations: **bit tricks** (`&`, `|`, `^`, `~`) and **normal math** (`+`, `-`, `*`). Mixing them creates expressions that are very hard to read, even though they can equal something simple.
 
----
+Example: `(x ^ y) + 2 * (x & y)` is really just `x + y`. 🪄
+</details>
 
-## 🚀 Features
+<details>
+<summary>🎭 <b>Obfuscation</b></summary>
 
-### Core Prototype Features
+Deliberately making code confusing so humans and tools can't understand it. Used by malware authors and by copy-protection software.
+</details>
 
-| Feature | Description |
-|---|---|
-| Safe expression input | Accepts expressions within a restricted mathematical grammar |
-| AST parsing | Extracts structure, supported operators, and complexity |
-| AI-driven simplification | Proposes human-readable alternatives |
-| Mathematical verification | Checks bit-vector equivalence using Z3 |
-| Counterexample feedback | Explains why an incorrect transformation fails |
-| Iterative correction | Retries proposals within a defined limit |
-| Verification report | Displays proven, rejected, or unresolved outcomes |
-| Local processing | Designed to avoid external inference API calls |
+<details>
+<summary>✅ <b>SMT Solver / Z3</b></summary>
 
-### Planned Advanced Capabilities
+A program that answers: "Is there *any* input that breaks this statement?" If it says **no**, the statement is proven true for every input. That is a real mathematical guarantee, not a test.
+</details>
 
-- Fine-tuned 3B local language model
-- Counterexample-aware training trajectories
-- Preference optimization for simpler verified expressions
-- AST subtree decomposition
-- Opaque-predicate analysis
-- Restricted control-flow simplification
-- Integration with binary-analysis tools
-- Extended audit logging and proof-status reporting
+<details>
+<summary>🔍 <b>UNSAT vs SAT</b></summary>
 
-These advanced capabilities are development goals rather than assumed completed features.
+- **UNSAT** = "No counterexample exists" → ✅ **Proven equal**
+- **SAT** = "Here's an input where they differ" → ❌ **Not equal** (and here's the proof)
+</details>
 
----
+<details>
+<summary>⚖️ <b>Miter Circuit</b></summary>
 
-## 📂 Repository Structure
+Feed the same input into both expressions, compare the outputs, and ask Z3: *"Can the outputs ever differ?"* If the answer is no, they are identical.
+</details>
 
-The following is the **proposed repository organization**. It should be updated to match the actual codebase.
+<details>
+<summary>🔁 <b>CEGIS (Counterexample-Guided Inductive Synthesis)</b></summary>
 
-```text
-PALIMPSEST/
-│
-├── README.md
-├── requirements.txt
-├── .gitignore
-│
-├── app/
-│   └── main.py
-│
-├── core/
-│   ├── ast_parser.py
-│   ├── expression_validator.py
-│   ├── neural_proposer.py
-│   ├── z3_verifier.py
-│   ├── cegis_controller.py
-│   └── reporting.py
-│
-├── training/
-│   ├── generate_dataset.py
-│   ├── validate_dataset.py
-│   └── finetune_model.py
-│
-├── data/
-│   ├── samples/
-│   └── synthetic/
-│
-├── tests/
-│   ├── test_parser.py
-│   ├── test_verifier.py
-│   └── test_cegis.py
-│
-├── docs/
-│   ├── architecture.md
-│   └── evaluation.md
-│
-└── assets/
-    └── screenshots/
-```
+A fancy name for **guess → test → learn from the failure → guess again**. Like a student getting a graded exam back with the exact mistakes circled. 📝
+</details>
 
-### Core Modules
+<details>
+<summary>🧠 <b>SLM (Small Language Model)</b></summary>
 
-**`ast_parser.py`** — Parses expressions and extracts their mathematical structure.
+A compact AI model (here ~3 billion parameters). Less general knowledge than giant models, but fast, private, and cheap, and when fine-tuned for one task it can excel at it.
+</details>
 
-**`expression_validator.py`** — Restricts inputs to supported operations and prevents arbitrary code execution.
+<details>
+<summary>🎛️ <b>Fine-tuning, LoRA and QLoRA</b></summary>
 
-**`neural_proposer.py`** — Connects the application with the local language model.
+- **Fine-tuning:** teaching an existing model a new specialty.
+- **LoRA:** instead of rewriting the whole model, train a few small "add-on" layers.
+- **QLoRA:** same thing, but the base model is compressed to 4-bit first so it fits on small GPUs.
+</details>
 
-**`z3_verifier.py`** — Converts expressions into symbolic bit-vectors and performs equivalence checks.
+<details>
+<summary>🏆 <b>DPO (Direct Preference Optimization)</b></summary>
 
-**`cegis_controller.py`** — Controls retries and passes counterexamples back to the model.
+Show the model pairs of "better answer" vs "worse answer" so it learns what we *prefer*. Here: prefer **correct and shortest**.
+</details>
 
-**`reporting.py`** — Produces verification summaries, performance measurements, and analysis results.
+<details>
+<summary>🔄 <b>Why LangGraph (and not a normal chain)?</b></summary>
+
+Normal pipelines only go forward (A → B → C). We need to **loop back** when Z3 rejects an answer. LangGraph is built for stateful loops with clear rules for when to stop.
+</details>
+
+<details>
+<summary>🔌 <b>MCP (Model Context Protocol)</b></summary>
+
+A standard way for AI to call tools. We use it so the AI never runs dangerous code directly. Tools live in sandboxes with strict timeouts.
+</details>
+
+<details>
+<summary>📝 <b>SQLite WAL Mode</b></summary>
+
+A database setting that lets us **write logs and read the dashboard at the same time** without blocking each other.
+</details>
+
+<details>
+<summary>🚧 <b>Control-Flow Flattening and Opaque Predicates</b></summary>
+
+- **Control-Flow Flattening:** a neat program turned into a messy `switch` loop.
+- **Opaque Predicate:** an `if` condition that's secretly always true (or always false), used to hide fake code.
+</details>
 
 ---
 
-## 💻 Getting Started
+## 🆚 Why PALIMPSEST Is Different
 
-### Prerequisites
+| 🔍 Dimension | 🙄 Typical AI Wrapper | 🚀 PALIMPSEST |
+| --- | --- | --- |
+| **Role of AI** | Chatbot that guesses | Small specialist **inside a proof loop** |
+| **Trust in output** | "Looks right" 🤞 | **Z3-proven** across all 64-bit inputs ✅ |
+| **Training data** | Scraped or none | **Self-generated, auto-verified** (Trapdoor engine) |
+| **Fine-tuning** | None | **Unsloth QLoRA + DPO** |
+| **Agent design** | Straight prompt chain | **Cyclical LangGraph loop** using counterexamples |
+| **Privacy** | Sends data to cloud APIs ☁️ | **100% offline, sandboxed** 🔒 |
+| **Speed** | Seconds per round-trip | **Milliseconds** per check ⚡ |
 
-The proposed development environment includes:
+---
 
-- Python 3.10+ with compatible dependencies
-- Git
-- A supported local model runtime
-- Z3 Python bindings
-- Optional CUDA-capable GPU for faster model inference and fine-tuning
+## 🚀 Getting Started
 
-### Clone the Repository
+> ✏️ **Team: fill in the exact commands for your repo!**
 
 ```bash
-git clone <YOUR_REPOSITORY_URL>
-cd PALIMPSEST
-```
+# 1. Clone the repo
+git clone https://github.com/<your-username>/<your-repo>.git
+cd <your-repo>
 
-### Create a Virtual Environment
-
-```bash
-python -m venv .venv
-```
-
-On Windows:
-
-```bash
-.venv\Scripts\activate
-```
-
-On Linux or macOS:
-
-```bash
-source .venv/bin/activate
-```
-
-### Install Dependencies
-
-Once the repository's dependency file is finalized:
-
-```bash
+# 2. Install dependencies
 pip install -r requirements.txt
+
+# 3. Download / place the fine-tuned GGUF model
+#    (add link or instructions here)
+
+# 4. Launch the Command Center
+streamlit run app.py
 ```
 
-### Launch the Application
-
-The planned Streamlit entry point is:
-
-```bash
-streamlit run app/main.py
-```
-
-**Note:** These commands describe the intended project setup. They will work only after the corresponding files, dependencies, and model configuration are implemented and committed.
+Then paste an obfuscated expression and watch PALIMPSEST work. ✨
 
 ---
 
-## 📊 Evaluation and Benchmarks
+## 👥 Team NEXUS
 
-PALIMPSEST's success should be evaluated through reproducible experiments rather than unverified performance claims.
-
-### Proposed Evaluation Metrics
-
-| Metric | What It Measures |
-|---|---|
-| Verification success rate | Percentage of inputs producing verified simplifications |
-| AST complexity reduction | Reduction in expression node count |
-| Candidate rejection accuracy | Whether incorrect transformations are reliably rejected |
-| Average inference latency | Time required to generate a proposal |
-| Solver latency | Time required for formal verification |
-| Total resolution time | Full processing time including retries |
-| CEGIS recovery rate | Percentage of failed first proposals successfully corrected |
-| Local resource usage | RAM, VRAM, and CPU consumption |
-
-### AST Complexity Reduction
-
-A proposed complexity measurement is:
-
-\[
-\text{Reduction (\%)} =
-\frac{N_{\text{original}}-N_{\text{simplified}}}
-{N_{\text{original}}}\times100
-\]
-
-where \(N\) represents the number of AST nodes under the chosen counting convention.
-
-### Experimental Design
-
-The team plans to evaluate the system against:
-
-1. Simple arithmetic expressions
-2. Linear MBA transformations
-3. Nested MBA expressions
-4. Expressions containing opaque-zero terms
-5. Incorrect simplification candidates
-6. Cases that exceed supported complexity or solver limits
-
-Results should be measured on a held-out dataset whose underlying expression families are not simply duplicates of training examples.
-
-### Target Outcomes
-
-The pitch proposes ambitious targets for:
-
-- High AST complexity reduction
-- Low-latency candidate generation
-- Local deployment
-- Solver-backed equivalence verification
-
-These remain **targets until measured and reproduced**.
-
-A mathematically verified candidate can be labeled equivalent even if other candidates fail or time out. The overall system is not guaranteed to simplify every input.
+| 👤 Members |
+| --- |
+| Suriya |
+| Krishitha |
+| Kaniska |
+| Anbukumaran |
+| Nahulan |
 
 ---
 
-## 🔐 Safety and Limitations
+## 📜 License
 
-PALIMPSEST is intended for authorized software-security research, program analysis, and controlled experimentation.
+This project is licensed under the **Apache License 2.0**. See the [LICENSE](LICENSE) file for details.
 
-### Input Security
-
-The initial prototype should accept only a restricted expression grammar.
-
-It must not execute submitted input as arbitrary Python code.
-
-Python's AST parser provides syntax structure, but actual enforcement requires explicit node and operator validation.
-
-### Local Inference
-
-The proposed model runs locally to avoid sending analyzed expressions to external model providers.
-
-Full air-gapped operation additionally requires offline dependencies, controlled networking, and appropriate execution isolation.
-
-### Model Reliability
-
-AI-generated code transformations are treated as untrusted suggestions.
-
-A candidate is accepted only after successful verification against the original expression.
-
-### Solver Limitations
-
-Formal verification may become computationally expensive for certain expressions.
-
-Timeouts and unsupported cases must remain unresolved rather than being presented as verified.
-
-### Scope Limitations
-
-The initial version focuses on fixed-width mathematical and bitwise expressions.
-
-Support for arbitrary malware binaries, full control-flow recovery, and executable-level semantic verification would require additional research and engineering.
+In short: you can use, modify and share this project (even commercially), as long as you keep the license and copyright notice. ✅
 
 ---
 
-## 🌍 Real-World Applications
-
-### Malware Analysis
-
-Assist analysts in simplifying selected obfuscated mathematical expressions encountered during authorized malware investigations.
-
-### Reverse Engineering
-
-Help researchers examine complex program transformations while preserving the semantics of verified expressions.
-
-### Security Research
-
-Support experiments involving program synthesis, formal methods, and AI-assisted code transformation.
-
-### Privacy-Sensitive Infrastructure
-
-Provide an architecture suitable for investigating local, offline analysis workflows where sending proprietary code to external AI services may be inappropriate.
-
-### Software Verification Research
-
-Explore how generative models and mathematical solvers can collaborate to produce more dependable automated transformations.
-
----
-
-## 🔮 Future Scope
-
-PALIMPSEST's long-term research roadmap includes:
-
-**Phase 1 — Verified Expression Simplification**
-
-Develop the AST parser, neural proposer, Z3 verifier, and iterative correction pipeline.
-
-**Phase 2 — Specialized Model Improvement**
-
-Expand synthetic training data, perform QLoRA fine-tuning, and evaluate counterexample-conditioned model behavior.
-
-**Phase 3 — Advanced Obfuscation Support**
-
-Investigate opaque predicates, subtree rewriting, and selected control-flow obfuscation patterns.
-
-**Phase 4 — Security Tool Integration**
-
-Explore interoperability with authorized binary-analysis and reverse-engineering tools.
-
-**Phase 5 — Optimized Offline Deployment**
-
-Benchmark quantized models and solver performance across different hardware configurations.
-
----
-
-## 🎬 DEXATHON 2026 — Three-Minute Demo
-
-The project's demonstration is designed around a clear before-and-after transformation.
-
-**0:00–0:30 | The Problem**
-
-Show an obfuscated MBA expression and explain why its underlying behavior is difficult to recognize.
-
-**0:30–1:00 | Neural Simplification**
-
-Submit the expression to PALIMPSEST and show the AI proposing a simpler alternative.
-
-**1:00–1:30 | Mathematical Verification**
-
-Demonstrate Z3 rejecting an intentionally incorrect candidate and producing an exact counterexample.
-
-**1:30–2:15 | Self-Correction**
-
-Show the model or controlled retry pipeline receiving the counterexample and producing a revised simplification.
-
-**2:15–2:45 | Verified Output**
-
-Display a successfully verified expression together with the solver verdict and AST complexity reduction.
-
-**2:45–3:00 | Innovation**
-
-Highlight the central architectural contribution:
-
-> **PALIMPSEST doesn't blindly trust AI-generated code. It makes mathematical verification part of the AI's reasoning process.**
-
-If the fine-tuned model is not ready, the demo should transparently identify which steps are model-driven and which are deterministic demonstrations.
-
----
-
-## 📚 Research and References
-
-### Core Technologies
-
-**Microsoft Z3 Theorem Prover**  
-https://github.com/Z3Prover/z3
-
-**Qwen2.5-Coder-3B-Instruct**  
-https://huggingface.co/Qwen/Qwen2.5-Coder-3B-Instruct
-
-**Unsloth**  
-https://docs.unsloth.ai/
-
-**LangGraph**  
-https://docs.langchain.com/oss/python/langgraph/overview
-
-**Hugging Face Transformers**  
-https://huggingface.co/docs/transformers/
-
-**Microsoft Z3 Python API**  
-https://z3prover.github.io/api/html/namespacez3py.html
-
-### Research Foundations
-
-**Counterexample-Guided Inductive Synthesis (CEGIS)**  
-https://www.microsoft.com/en-us/research/publication/inductive-synthesis-of-recursive-programs/
-
-**QLoRA: Efficient Finetuning of Quantized LLMs**  
-https://arxiv.org/abs/2305.14314
-
-**Direct Preference Optimization (DPO)**  
-https://arxiv.org/abs/2305.18290
-
-These sources provide background for the project's proposed mathematical verification, specialized model training, and iterative generation architecture.
-
----
-
-## 👥 Team
-
-**Project:** PALIMPSEST (VEX-MORPH)  
-**Hackathon:** DEXATHON 2026  
-**Institution:** [TEAM INSTITUTION]  
-**Registered Team:** [TEAM NAME]  
-**Team ID:** [TEAM ID]
-
-| Team Member | Responsibility |
-|---|---|
-| [Member 1] | [Role] |
-| [Member 2] | [Role] |
-| [Member 3] | [Role] |
-| [Member 4] | [Role] |
-
----
-
-## 🏆 Final Vision
-
-PALIMPSEST explores a fundamental question in trustworthy artificial intelligence:
-
-**What if AI could generate solutions creatively, while mathematics independently verified their correctness?**
-
-By combining a specialized local language model, symbolic mathematical verification, and counterexample-guided refinement, PALIMPSEST aims to make AI-assisted code simplification more reliable, explainable, and suitable for privacy-sensitive environments.
-
-### PALIMPSEST — The AI Proposes. The Mathematics Proves.
-
-*Built for DEXATHON 2026.*
+<p align="center">
+  <b>🧬 PALIMPSEST: because "trust me" isn't a proof.</b> 🧮
+</p>
